@@ -20,6 +20,7 @@ class RecordAudio() {
                 setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
                 try {
                     prepare()
+                    aux = filePath
                 } catch (e: IOException) {
                     Log.e("RecordFailed", "prepare() failed")
                 }
