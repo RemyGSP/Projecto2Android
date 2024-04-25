@@ -7,6 +7,7 @@ import androidx.core.app.ActivityCompat
 import com.example.projecto2android.databinding.ActivityMainBinding
 import android.Manifest
 import android.content.Intent
+import androidx.core.content.ContextCompat
 import com.example.projecto2android.databinding.RecordScreenBinding
 
 class MainActivity : AppCompatActivity() {
@@ -33,6 +34,11 @@ class MainActivity : AppCompatActivity() {
         binding.PlusButton.setOnClickListener(){
             val intent = Intent(this, RecordScreenBinding::class.java)
             startActivity(intent)
+        }
+        //permisos para poder grabar con la camara
+
+        if(ContextCompat.checkSelfPermission(this@MainActivity, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this@MainActivity, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            ActivityCompat.requestPermissions(this@MainActivity, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA), 1000)
         }
     }
 }

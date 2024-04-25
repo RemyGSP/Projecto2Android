@@ -17,6 +17,7 @@
             android:id="@+id/audioRecordButton"
             android:layout_width="209dp"
             android:layout_height="match_parent"
+            android:onClick="grabarVideo"
             android:padding="40px"
             android:text="Grabar Audio" />
 
