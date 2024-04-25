@@ -30,4 +30,16 @@
             android:text="Grabar video" />
     </LinearLayout>
 
+    <EditText
+        android:id="@+id/path"
+        android:layout_width="344dp"
+        android:layout_height="69dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="164dp"
+        android:ems="10"
+        android:inputType="text"
+        android:text="file name"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
