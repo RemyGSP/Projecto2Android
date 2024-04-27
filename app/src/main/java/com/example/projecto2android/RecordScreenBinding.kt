@@ -1,6 +1,5 @@
 package com.example.projecto2android
 
-import RecordVideo
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -31,17 +30,17 @@ class RecordScreenBinding: AppCompatActivity() {
 
                 }
             }
-            recordVideo = RecordVideo()
+            recordVideo = RecordVideo(this,binding.textureView)
             binding.videoRecordButton.setOnClickListener() {
                 if (!isRecordingVideo){
-                    recordVideo.startRecording(this,binding.path.text.toString())
+                    recordVideo.startRecording()
                     isRecordingVideo = true
                     Toast.makeText(this,"Recording",Toast.LENGTH_LONG).show()
 
                 }
                 else{
                     recordVideo.stopRecording()
-                    isRecording = false
+                    isRecordingVideo = false
                     Toast.makeText(this,"Stop Recording",Toast.LENGTH_LONG).show()
 
                 }

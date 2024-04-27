@@ -16,7 +16,6 @@ class RecordAudio() {
             recorder = MediaRecorder().apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
                 setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-                Log.d("Filename", fileName)
                 setOutputFile(fileName)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
                 try {
@@ -32,6 +31,14 @@ class RecordAudio() {
     }
 
     public fun StopRecording(){
-        recorder.stop()
+        recorder?.apply {
+            try {
+                stop()
+            } catch (e: RuntimeException) {
+                Log.e("RecordVideo", "Error stopping recording: ${e.message}")
+            }
+            release()
+        }
+
     }
 }

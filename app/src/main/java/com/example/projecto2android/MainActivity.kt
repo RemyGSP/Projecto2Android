@@ -20,7 +20,9 @@ class MainActivity : AppCompatActivity() {
     private var permissions = arrayOf(
         Manifest.permission.RECORD_AUDIO,
         Manifest.permission.READ_EXTERNAL_STORAGE,
-        Manifest.permission.WRITE_EXTERNAL_STORAGE
+        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+        Manifest.permission.CAMERA
+
     )
     private var permissionToRecordAccepted = false
 
@@ -32,9 +34,27 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
         val recyclerView : RecyclerView = binding.recyclerView
         recyclerView.layoutManager = LinearLayoutManager(this)
-
+        val movieDirectory = File("/storage/emulated/0/Android/data/com.example.projecto2android/files/Movies/")
         val musicDirectory = File("/storage/emulated/0/Android/data/com.example.projecto2android/files/Music/")
-        val audioVideoFiles = musicDirectory.listFiles { file -> file.isFile && (file.extension == "mp3" || file.extension == "mp4") }
+        if (!movieDirectory.exists()) {
+            movieDirectory.mkdirs()
+        }
+        if (!musicDirectory.exists()) {
+            musicDirectory.mkdirs()
+        }
+
+        // Access files only if directories exist
+        val audioVideoFiles = if (musicDirectory.exists()) {
+            musicDirectory.listFiles { file -> file.isFile && (file.extension == "mp3" || file.extension == "mp4") }
+        } else {
+            emptyArray()
+        }
+        val videoFiles = if (movieDirectory.exists()) {
+            movieDirectory.listFiles { file -> file.isFile && (file.extension == "mp4" || file.extension == "mp4") }
+        } else {
+            emptyArray()
+        }
+        audioVideoFiles.plus(videoFiles)
         val adapter = FileAdapter(this, audioVideoFiles.toList())
         recyclerView.adapter = adapter
         ActivityCompat.requestPermissions(this, permissions,100)
