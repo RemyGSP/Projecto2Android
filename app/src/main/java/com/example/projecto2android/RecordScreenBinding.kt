@@ -1,6 +1,8 @@
 package com.example.projecto2android
 
+import RecordVideo
 import android.os.Bundle
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.projecto2android.databinding.ActivityMainBinding
 import com.example.projecto2android.databinding.RecordScreenBinding
@@ -8,8 +10,10 @@ import com.example.projecto2android.databinding.RecordScreenBinding
 class RecordScreenBinding: AppCompatActivity() {
     private lateinit var binding: RecordScreenBinding
     private var isRecording :Boolean = false
+    private var isRecordingVideo : Boolean = false
     private lateinit var recordAudio: RecordAudio
-        override fun onCreate(savedInstanceState: Bundle?) {
+    private lateinit var recordVideo: RecordVideo
+    override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             binding = RecordScreenBinding.inflate(layoutInflater)
             setContentView(binding.root)
@@ -17,13 +21,43 @@ class RecordScreenBinding: AppCompatActivity() {
             binding.audioRecordButton.setOnClickListener() {
                 if (!isRecording){
                     recordAudio.StartRecording(this,binding.path.text.toString())
-
+                    isRecording = true
+                    Toast.makeText(this,"Recording",Toast.LENGTH_LONG).show()
                 }
                 else{
                     recordAudio.StopRecording()
+                    isRecording = false
+                    Toast.makeText(this,"Stop Recording",Toast.LENGTH_LONG).show()
 
+                }
             }
+            recordVideo = RecordVideo()
+            binding.videoRecordButton.setOnClickListener() {
+                if (!isRecordingVideo){
+                    recordVideo.startRecording(this,binding.path.text.toString())
+                    isRecordingVideo = true
+                    Toast.makeText(this,"Recording",Toast.LENGTH_LONG).show()
+
+                }
+                else{
+                    recordVideo.stopRecording()
+                    isRecording = false
+                    Toast.makeText(this,"Stop Recording",Toast.LENGTH_LONG).show()
+
+                }
             }
+
+            binding.bottomNavBar.setOnNavigationItemSelectedListener { item ->
+                when(item.itemId) {
+
+                    R.id.goBackButton -> {
+                        finish()
+                        true
+                    }
+                    else -> false
+                }
+            }
+
         }
 
 }

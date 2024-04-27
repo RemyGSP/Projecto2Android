@@ -12,10 +12,11 @@ class RecordAudio() {
     public fun StartRecording(context: Context, filePath : String): String{
         var aux : String = ""
             val outputFile = File(context.getExternalFilesDir(Environment.DIRECTORY_MUSIC), filePath)
-            var fileName = outputFile.absolutePath
+            var fileName = outputFile.absolutePath + ".mp3"
             recorder = MediaRecorder().apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
                 setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+                Log.d("Filename", fileName)
                 setOutputFile(fileName)
                 setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
                 try {

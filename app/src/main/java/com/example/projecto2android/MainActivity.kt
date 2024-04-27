@@ -1,5 +1,6 @@
 package com.example.projecto2android
 
+import FileAdapter
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -7,39 +8,51 @@ import androidx.core.app.ActivityCompat
 import com.example.projecto2android.databinding.ActivityMainBinding
 import android.Manifest
 import android.content.Intent
+import android.os.Environment
+import androidx.core.content.ContextCompat
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
-    private var REQUEST_RECORD_AUDIO_PERMISSION: Int = 200
-    public var permissionToRecordAccepted: Boolean = false
-    private var permissions: Array<String> = arrayOf(Manifest.permission.RECORD_AUDIO)
-    override fun onRequestPermissionsResult(
-        requestCode: Int,
-        permissions: Array<String>,
-        grantResults: IntArray
-    ) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        permissionToRecordAccepted = if (requestCode == REQUEST_RECORD_AUDIO_PERMISSION) {
-            grantResults[0] == PackageManager.PERMISSION_GRANTED
-        } else {
-            false
-        }
-        if (!permissionToRecordAccepted) {
-            finish()
-        }
-    }
-
     private lateinit var binding: ActivityMainBinding
+    private var REQUEST_RECORD_AUDIO_PERMISSION = 200
+    private var permissions = arrayOf(
+        Manifest.permission.RECORD_AUDIO,
+        Manifest.permission.READ_EXTERNAL_STORAGE,
+        Manifest.permission.WRITE_EXTERNAL_STORAGE
+    )
+    private var permissionToRecordAccepted = false
+
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        ActivityCompat.requestPermissions(this, permissions, REQUEST_RECORD_AUDIO_PERMISSION)
+        val recyclerView : RecyclerView = binding.recyclerView
+        recyclerView.layoutManager = LinearLayoutManager(this)
+
+        val musicDirectory = File("/storage/emulated/0/Android/data/com.example.projecto2android/files/Music/")
+        val audioVideoFiles = musicDirectory.listFiles { file -> file.isFile && (file.extension == "mp3" || file.extension == "mp4") }
+        val adapter = FileAdapter(this, audioVideoFiles.toList())
+        recyclerView.adapter = adapter
+        ActivityCompat.requestPermissions(this, permissions,100)
+
         binding.PlusButton.setOnClickListener() {
             val intent = Intent(this, RecordScreenBinding::class.java)
             startActivity(intent)
+
+        }
+
+        binding.bottomNavBar.setOnNavigationItemSelectedListener { item ->
+            when(item.itemId) {
+                R.id.goBackButton -> {
+                    finish()
+                    true
+                }
+                else -> false
+            }
         }
     }
-
-
-
 }
