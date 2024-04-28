@@ -45,12 +45,12 @@ class MainActivity : AppCompatActivity() {
 
         // Access files only if directories exist
         val audioVideoFiles = if (musicDirectory.exists()) {
-            musicDirectory.listFiles { file -> file.isFile && (file.extension == "mp3" || file.extension == "mp4") }
+            musicDirectory.listFiles { file -> file.isFile && (file.extension == "mp3" || file.extension == "mp4"|| file.extension == "mov") }
         } else {
             emptyArray()
         }
         val videoFiles = if (movieDirectory.exists()) {
-            movieDirectory.listFiles { file -> file.isFile && (file.extension == "mp4" || file.extension == "mp4") }
+            movieDirectory.listFiles { file -> file.isFile && (file.extension == "mp3" || file.extension == "mp4"|| file.extension == "mov") }
         } else {
             emptyArray()
         }
@@ -74,5 +74,40 @@ class MainActivity : AppCompatActivity() {
                 else -> false
             }
         }
+    }
+
+    override fun onActivityReenter(resultCode: Int, data: Intent?) {
+        super.onActivityReenter(resultCode, data)
+    }
+
+    override fun onEnterAnimationComplete() {
+        super.onEnterAnimationComplete()
+        FillAdapter()
+
+    }
+    fun FillAdapter(){
+        val movieDirectory = File("/storage/emulated/0/Android/data/com.example.projecto2android/files/Movies/")
+        val musicDirectory = File("/storage/emulated/0/Android/data/com.example.projecto2android/files/Music/")
+        if (!movieDirectory.exists()) {
+            movieDirectory.mkdirs()
+        }
+        if (!musicDirectory.exists()) {
+            musicDirectory.mkdirs()
+        }
+
+        // Access files only if directories exist
+        val audioVideoFiles = if (musicDirectory.exists()) {
+            musicDirectory.listFiles { file -> file.isFile && (file.extension == "mp3" || file.extension == "mp4"|| file.extension == "mov") }
+        } else {
+            emptyArray()
+        }
+        val videoFiles = if (movieDirectory.exists()) {
+            movieDirectory.listFiles { file -> file.isFile && (file.extension == "mp3" || file.extension == "mp4"|| file.extension == "mov") }
+        } else {
+            emptyArray()
+        }
+        audioVideoFiles.plus(videoFiles)
+        val adapter = FileAdapter(this, audioVideoFiles.toList())
+        binding.recyclerView.adapter = adapter
     }
 }

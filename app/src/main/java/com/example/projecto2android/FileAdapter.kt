@@ -1,16 +1,21 @@
+import android.content.ContentResolver
 import android.content.Context
 import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.MimeTypeMap
 import android.widget.Button
 import android.widget.TextView
+import android.widget.Toast
 import android.widget.VideoView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.projecto2android.R
 import com.example.projecto2android.ReproduceAudio
+import com.example.projecto2android.ReproduceVideo
 import java.io.File
 
 class FileAdapter(private val context: Context, private val files: List<File>) : RecyclerView.Adapter<FileAdapter.FileViewHolder>() {
@@ -23,12 +28,35 @@ class FileAdapter(private val context: Context, private val files: List<File>) :
     override fun onBindViewHolder(holder: FileViewHolder, position: Int) {
         val file = files[position]
         val filePath = file.path
-        val fileExtension = getFileExtension(filePath)
+        holder.fileNameTextView.text = file.name
+        val audio : MediaPlayer = ReproduceAudio().PlayAudio(file.absolutePath)
+        holder.startButton.setOnClickListener(){
+            val extension = getFileExtension(file.absolutePath)
 
-        if (fileExtension.equals("mp4", ignoreCase = true)) {
-            holder.bindVideo(file)
-        } else {
-            holder.bindAudio(file)
+            if (extension == "mp3") {
+                audio.start()
+
+
+            } else if (extension == "mov") {
+                val intent = Intent(context, ReproduceVideo::class.java)
+                intent.putExtra("filePath", file.absolutePath) // Pass file path to activity
+                context.startActivity(intent)
+            } else {
+                // Handle unsupported file types
+                Toast.makeText(context, "Unsupported file type", Toast.LENGTH_SHORT).show()
+            }
+        }
+        holder.stopButton.setOnClickListener(){
+            val extension = getFileExtension(file.absolutePath)
+
+            if (extension == "mp3") {
+                audio.stop()
+
+
+            }else {
+                // Handle unsupported file types
+                Toast.makeText(context, "Unsupported file type", Toast.LENGTH_SHORT).show()
+            }
         }
     }
 
@@ -36,82 +64,23 @@ class FileAdapter(private val context: Context, private val files: List<File>) :
         return files.size
     }
 
-    inner class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView), View.OnClickListener {
-        private val fileNameTextView: TextView = itemView.findViewById(R.id.fileNameTextView)
-        private val videoView: VideoView = itemView.findViewById(R.id.videoView)
-        val startButton: Button = itemView.findViewById(R.id.playButton)
-        val stopButton: Button = itemView.findViewById(R.id.stopButton)
+    inner class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView){
+        val fileNameTextView: TextView = itemView.findViewById(R.id.fileNameTextView)
 
-        init {
-            itemView.setOnClickListener(this)
-        }
+        var startButton: Button = itemView.findViewById<Button?>(R.id.playButton)
 
-        override fun onClick(v: View?) {
-            val file = files[adapterPosition]
-            val filePath = file.path
-            val fileExtension = getFileExtension(filePath)
+        val stopButton: Button = itemView.findViewById<Button?>(R.id.stopButton)
 
-            if (fileExtension.equals("mp4", ignoreCase = true)) {
-                val intent = Intent(context, ReproduceVideo::class.java)
-                intent.putExtra("video_path", Uri.fromFile(file).toString())
-                context.startActivity(intent)
-            } else {
-                val mediaPlayer = ReproduceAudio().PlayAudio(filePath)
-                mediaPlayer.start()
-            }
-        }
-
-        fun bindAudio(file: File) {
-            fileNameTextView.text = file.name
-            videoView.visibility = View.GONE
-            startButton.visibility = View.VISIBLE
-            stopButton.visibility = View.VISIBLE
-0
-            val mediaPlayer = ReproduceAudio().PlayAudio(file.path)
-            startButton.setOnClickListener {
-                mediaPlayer.start()
-            }
-            stopButton.setOnClickListener {
-                mediaPlayer.stop()
-            }
-        }
-        fun bindVideo(file: File) {
-            fileNameTextView.text = file.name
-            videoView.visibility = View.VISIBLE
-            startButton.visibility = View.GONE
-            stopButton.visibility = View.GONE
-
-            // Configurar el VideoView para reproducir el video
-            videoView.setVideoURI(Uri.fromFile(file))
-            videoView.setOnPreparedListener { mediaPlayer ->
-                // Ajustar el tamaño del VideoView para que se ajuste al tamaño del video
-                val videoWidth = mediaPlayer.videoWidth
-                val videoHeight = mediaPlayer.videoHeight
-                val videoProportion = videoWidth.toFloat() / videoHeight.toFloat()
-                val screenWidth = videoView.resources.displayMetrics.widthPixels
-                val screenHeight = videoView.resources.displayMetrics.heightPixels
-                val screenProportion = screenWidth.toFloat() / screenHeight.toFloat()
-                val lp = videoView.layoutParams
-                if (videoProportion > screenProportion) {
-                    lp.width = screenWidth
-                    lp.height = (screenWidth / videoProportion).toInt()
-                } else {
-                    lp.width = (videoProportion * screenHeight).toInt()
-                    lp.height = screenHeight
-                }
-                videoView.layoutParams = lp
-
-                // Iniciar la reproducción del video
-                mediaPlayer.start()
-            }
-
-            // Mostrar los botones de reproducción (opcional)
-            startButton.visibility = View.VISIBLE
-            stopButton.visibility = View.VISIBLE
-        }
     }
+
+
 
     private fun getFileExtension(filePath: String): String {
         return filePath.substringAfterLast(".", "")
     }
 }
+
+private fun getFileExtension(filePath: String): String {
+        return filePath.substringAfterLast(".", "")
+    }
+

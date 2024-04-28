@@ -20,7 +20,7 @@ class RecordScreenBinding: AppCompatActivity() {
             recordAudio = RecordAudio()
             binding.audioRecordButton.setOnClickListener() {
                 if (!isRecording){
-                    recordAudio.StartRecording(this,binding.path.text.toString())
+                    recordAudio.StartRecording(this)
                     isRecording = true
                     Toast.makeText(this,"Recording",Toast.LENGTH_LONG).show()
                 }

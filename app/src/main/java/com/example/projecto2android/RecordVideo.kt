@@ -72,7 +72,7 @@ class RecordVideo : AppCompatActivity() {
             setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP)
             mediaRecorder.setVideoSize(1280, 720) // 720p
             setVideoFrameRate(60)
-            setOutputFile(videoFile.absolutePath)
+            setOutputFile(getOutputFilePath())
             setPreviewDisplay(binding.btnVideo.holder.surface)
         }
         try {
@@ -105,27 +105,11 @@ class RecordVideo : AppCompatActivity() {
             finish()
         }
     }
-    fun setCameraDisplayOrientation(activity: Activity, cameraId: Int, camera: Camera) : Int{
-        val info = Camera.CameraInfo()
-        Camera.getCameraInfo(cameraId, info)
 
-        val rotation = activity.windowManager.defaultDisplay.rotation
-        var degrees = 0
-
-        when (rotation) {
-            Surface.ROTATION_0 -> degrees = 0
-            Surface.ROTATION_90 -> degrees = 90
-            Surface.ROTATION_180 -> degrees = 180
-            Surface.ROTATION_270 -> degrees = 270
-        }
-
-        var result: Int
-        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
-            result = (info.orientation + degrees) % 360
-            result = (360 - result) % 360  // compensate the mirror
-        } else {  // back-facing
-            result = (info.orientation - degrees + 360) % 360
-        }
-        return result
+    private fun getOutputFilePath(): String {
+        // Crear un nombre de archivo único para el video
+        val fileName = "Video_${System.currentTimeMillis()}.mov"
+        val filePath = getExternalFilesDir(Environment.DIRECTORY_MUSIC)!!.path + "/" + fileName
+        return filePath
     }
 }

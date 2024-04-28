@@ -9,18 +9,15 @@ import android.media.MediaRecorder
 class RecordAudio() {
     private lateinit var recorder : MediaRecorder
     //Este metodo devolvera el path hacia el archivo que ha guardado
-    public fun StartRecording(context: Context, filePath : String): String{
+    public fun StartRecording(context: Context): String{
         var aux : String = ""
-            val outputFile = File(context.getExternalFilesDir(Environment.DIRECTORY_MUSIC), filePath)
-            var fileName = outputFile.absolutePath + ".mp3"
             recorder = MediaRecorder().apply {
                 setAudioSource(MediaRecorder.AudioSource.MIC)
                 setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
-                setOutputFile(fileName)
+                setOutputFile(getOutputFilePath(context))
                 setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
                 try {
                     prepare()
-                    aux = filePath
                 } catch (e: IOException) {
                     Log.e("RecordFailed", "prepare() failed")
                 }
@@ -40,5 +37,11 @@ class RecordAudio() {
             release()
         }
 
+    }
+    private fun getOutputFilePath(context: Context): String {
+        // Crear un nombre de archivo único para el video
+        val fileName = "Audio_${System.currentTimeMillis()}.mp3"
+        val filePath = context.getExternalFilesDir(Environment.DIRECTORY_MUSIC)!!.path + "/" + fileName
+        return filePath
     }
 }
