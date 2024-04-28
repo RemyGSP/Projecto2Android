@@ -24,7 +24,10 @@
         tools:targetApi="30">
         <activity android:name=".RecordScreenBinding">
         </activity>
+        <activity android:name=".RecordVideo"         android:screenOrientation="portrait" >
 
+
+        </activity>
         <activity
             android:name=".MainActivity"
             android:exported="true">

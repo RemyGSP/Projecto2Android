@@ -1,72 +1,148 @@
 package com.example.projecto2android
 
 import android.app.Activity
-import android.content.Context
+import android.hardware.Camera
+import android.media.MediaRecorder
+import android.os.Bundle
 import android.os.Environment
 import android.util.Log
+import android.view.Surface
+import android.view.SurfaceHolder
+import android.view.WindowManager
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+
+import com.example.projecto2android.databinding.MainBinding
 import java.io.File
 import java.io.IOException
-import android.media.MediaRecorder
-import android.util.DisplayMetrics
-import android.view.TextureView
 
-class RecordVideo(private val activity: Activity, private val previewView: TextureView) {
+class RecordVideo : AppCompatActivity() {
+    private lateinit var binding: MainBinding
+    private lateinit var mediaRecorder: MediaRecorder
+    private var isRecording = false
+    private var fileName = "prueba"
+    private lateinit var videoDirectory: File
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    private var mediaRecorder: MediaRecorder? = null
+        binding = MainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-    fun startRecording() {
+
+
+        binding.btnRecord.setOnClickListener {
+            toggleRecording()
+        }
+        binding.btnCancel.setOnClickListener {
+            finish()
+        }
+    }
+
+    private fun toggleRecording() {
+        if (isRecording) {
+            stopRecording()
+        } else {
+            startRecording()
+        }
+    }
+
+    private fun isExternalStorageWritable(): Boolean {
+        val state = Environment.getExternalStorageState()
+        return Environment.MEDIA_MOUNTED == state
+    }
+    private fun startRecording() {
+
+        if (!isExternalStorageWritable()) {
+            Toast.makeText(this, "Storage not available", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        val externalFilesDir = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
+        if (externalFilesDir == null) {
+            Toast.makeText(this, "Failed to get a valid directory", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        videoDirectory = externalFilesDir
+
+
+
+        val videoFile = File(videoDirectory, "$fileName.mp4")
+
+
+        videoDirectory = getExternalFilesDir(Environment.DIRECTORY_MOVIES)!!
+
+
+
         mediaRecorder = MediaRecorder()
-        mediaRecorder?.apply {
-            // Configurar MediaRecorder
-            setAudioSource(MediaRecorder.AudioSource.CAMCORDER)
-            setVideoSource(MediaRecorder.VideoSource.CAMERA) // Cambiar a CAMERA
+        mediaRecorder.apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setVideoSource(MediaRecorder.VideoSource.CAMERA)
+
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-            setOutputFile(getOutputFilePath())
-            val displayMetrics = DisplayMetrics()
-            activity.windowManager.defaultDisplay.getMetrics(displayMetrics)
-            val screenWidth = displayMetrics.widthPixels
-            val screenHeight = displayMetrics.heightPixels
+            setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+            setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP)
+            mediaRecorder.setVideoSize(1280, 720) // 720p
+            setVideoFrameRate(60)
 
-            // Calcular el tamaño del video (manteniendo la relación de aspecto)
-            val videoWidth = if (screenWidth > screenHeight) screenHeight else screenWidth
-            val videoHeight = if (screenWidth > screenHeight) screenWidth else screenHeight
 
-            // Configurar el tamaño del video en MediaRecorder
-            setVideoEncoder(MediaRecorder.VideoEncoder.H264)
-            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            mediaRecorder?.setVideoSize(videoWidth, videoHeight)
-            // Preparar MediaRecorder
+            setOutputFile(videoFile.absolutePath)
+            setPreviewDisplay(binding.btnVideo.holder.surface)
+        }
+
+
+        try {
+            mediaRecorder.prepare()
+            mediaRecorder.start()
+            isRecording = true
+            binding.btnRecord.text = "Stop"
+        } catch (e: IOException) {
+            Log.e("VideoRecorder", "Error preparando MediaRecorder: ${e.message}")
+            mediaRecorder.release()
+        }
+    }
+
+    private fun stopRecording() {
+        if (isRecording) {
             try {
-                prepare()
-                Log.d("EstadoMediaRecorder", mediaRecorder.toString())
-            } catch (e: IOException) {
-                e.printStackTrace()
-                return
+                mediaRecorder.stop()
+                mediaRecorder.reset()
+            } catch (e: RuntimeException) {
+                Log.e("VideoRecorder", "Error al detener la grabación: ${e.message}")
+            } finally {
+                mediaRecorder.release()
             }
-            // Iniciar la grabación
-            start()
 
+            isRecording = false
+            val savedFilePath = File(videoDirectory, "$fileName.mp4").absolutePath
+            Log.i("VideoRecorder", "Recorder released and video saved to: $savedFilePath")
+
+            binding.btnRecord.text = "Start"
+            finish()
+        }
+    }
+    fun setCameraDisplayOrientation(activity: Activity, cameraId: Int, camera: Camera) : Int{
+        val info = Camera.CameraInfo()
+        Camera.getCameraInfo(cameraId, info)
+
+        val rotation = activity.windowManager.defaultDisplay.rotation
+        var degrees = 0
+
+        when (rotation) {
+            Surface.ROTATION_0 -> degrees = 0
+            Surface.ROTATION_90 -> degrees = 90
+            Surface.ROTATION_180 -> degrees = 180
+            Surface.ROTATION_270 -> degrees = 270
         }
 
-        // Actualizar la interfaz de usuario (opcional)
-        // ...
-    }
-
-    fun stopRecording() {
-        mediaRecorder?.let {
-            it.stop()
-            it.release()
-            mediaRecorder = null
+        var result: Int
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            result = (info.orientation + degrees) % 360
+            result = (360 - result) % 360  // compensate the mirror
+        } else {  // back-facing
+            result = (info.orientation - degrees + 360) % 360
         }
-
-        // Actualizar la interfaz de usuario (opcional)
-        // ...
-    }
-
-    private fun getOutputFilePath(): String {
-        // Crear un nombre de archivo único para el video
-        val fileName = "Video_${System.currentTimeMillis()}.mov"
-        val filePath = activity.getExternalFilesDir(Environment.DIRECTORY_MUSIC)!!.path + "/" + fileName
-        return filePath
+        return result
     }
 }

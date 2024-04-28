@@ -1,5 +1,7 @@
 package com.example.projecto2android
 
+
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -11,7 +13,6 @@ class RecordScreenBinding: AppCompatActivity() {
     private var isRecording :Boolean = false
     private var isRecordingVideo : Boolean = false
     private lateinit var recordAudio: RecordAudio
-    private lateinit var recordVideo: RecordVideo
     override fun onCreate(savedInstanceState: Bundle?) {
             super.onCreate(savedInstanceState)
             binding = RecordScreenBinding.inflate(layoutInflater)
@@ -30,17 +31,15 @@ class RecordScreenBinding: AppCompatActivity() {
 
                 }
             }
-            recordVideo = RecordVideo(this,binding.textureView)
             binding.videoRecordButton.setOnClickListener() {
                 if (!isRecordingVideo){
-                    recordVideo.startRecording()
-                    isRecordingVideo = true
+                    val intent = Intent(this, RecordVideo::class.java)
+                    startActivity(intent)
                     Toast.makeText(this,"Recording",Toast.LENGTH_LONG).show()
 
                 }
                 else{
-                    recordVideo.stopRecording()
-                    isRecordingVideo = false
+
                     Toast.makeText(this,"Stop Recording",Toast.LENGTH_LONG).show()
 
                 }
