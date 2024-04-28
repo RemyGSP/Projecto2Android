@@ -1,4 +1,5 @@
 import android.content.Context
+import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
 import android.view.LayoutInflater
@@ -6,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
+import android.widget.VideoView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.projecto2android.R
 import com.example.projecto2android.ReproduceAudio
@@ -37,13 +39,17 @@ class FileAdapter(private val context: Context, private val files: List<File>) :
 
     inner class FileViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val fileNameTextView: TextView = itemView.findViewById(R.id.fileNameTextView)
+        private val videoView: VideoView = itemView.findViewById(R.id.videoView)
         val startButton: Button = itemView.findViewById(R.id.playButton)
         val stopButton: Button = itemView.findViewById(R.id.stopButton)
         fun bind(file: File) {
             fileNameTextView.text = file.name
-            itemView.setOnClickListener {
-                val uri = Uri.fromFile(file)
-                // Handle click event, e.g., play the audio/video file
+            videoView.setVideoURI(Uri.fromFile(file))
+            startButton.setOnClickListener {
+                videoView.start()
+            }
+            stopButton.setOnClickListener {
+                videoView.stopPlayback()
             }
         }
     }

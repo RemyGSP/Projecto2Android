@@ -25,11 +25,8 @@ class RecordVideo : AppCompatActivity() {
     private lateinit var videoDirectory: File
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         binding = MainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-
-
 
         binding.btnRecord.setOnClickListener {
             toggleRecording()
@@ -57,41 +54,27 @@ class RecordVideo : AppCompatActivity() {
             Toast.makeText(this, "Storage not available", Toast.LENGTH_SHORT).show()
             return
         }
-
         val externalFilesDir = getExternalFilesDir(Environment.DIRECTORY_MOVIES)
         if (externalFilesDir == null) {
             Toast.makeText(this, "Failed to get a valid directory", Toast.LENGTH_SHORT).show()
             return
         }
-
         videoDirectory = externalFilesDir
-
-
-
         val videoFile = File(videoDirectory, "$fileName.mp4")
-
-
         videoDirectory = getExternalFilesDir(Environment.DIRECTORY_MOVIES)!!
-
-
 
         mediaRecorder = MediaRecorder()
         mediaRecorder.apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
             setVideoSource(MediaRecorder.VideoSource.CAMERA)
-
             setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
             setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
             setVideoEncoder(MediaRecorder.VideoEncoder.MPEG_4_SP)
             mediaRecorder.setVideoSize(1280, 720) // 720p
             setVideoFrameRate(60)
-
-
             setOutputFile(videoFile.absolutePath)
             setPreviewDisplay(binding.btnVideo.holder.surface)
         }
-
-
         try {
             mediaRecorder.prepare()
             mediaRecorder.start()

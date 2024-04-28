@@ -36,12 +36,9 @@ class RecordScreenBinding: AppCompatActivity() {
                     val intent = Intent(this, RecordVideo::class.java)
                     startActivity(intent)
                     Toast.makeText(this,"Recording",Toast.LENGTH_LONG).show()
-
                 }
                 else{
-
                     Toast.makeText(this,"Stop Recording",Toast.LENGTH_LONG).show()
-
                 }
             }
 
